@@ -1,4 +1,7 @@
-﻿namespace SimpleTGBot;
+﻿using System.Net;
+using File = Telegram.Bot.Types.File;
+
+namespace SimpleTGBot;
 
 public static class Program
 {
@@ -7,5 +10,7 @@ public static class Program
     {
         TelegramBot telegramBot = new TelegramBot();
         await telegramBot.Run();
+        
     }
+    
 }
