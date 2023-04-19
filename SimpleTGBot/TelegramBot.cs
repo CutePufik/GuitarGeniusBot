@@ -22,8 +22,8 @@ public class TelegramBot
     String pathToZveri = "./input-files/tabs/звери";
     String pathToNerves = "./input-files/tabs/нервы";
     String pathToSplin = "./input-files/tabs/сплин";
-    
-    
+    public static String rigthAnswer = Chords.chord;
+
 
     /// <summary>
     /// Инициализирует и обеспечивает работу бота до нажатия клавиши Esc
@@ -38,7 +38,7 @@ public class TelegramBot
         // Будем получать только сообщения. При желании можно поработать с другими событиями.
         ReceiverOptions receiverOptions = new ReceiverOptions
         {
-            AllowedUpdates = new[] {UpdateType.Message, UpdateType.CallbackQuery,UpdateType.InlineQuery },
+            AllowedUpdates = new[] {UpdateType.Message, UpdateType.CallbackQuery },
             ThrowPendingUpdates = true
         };
        
@@ -110,14 +110,17 @@ public class TelegramBot
 
         if (message is not null)
         {
-            await GetMessages(chatId);
             if (message.Text == "Аккорды")
             {
                 
                 await Chords.mainGame((TelegramBotClient)botClient, chatId, cts);
                 
             }
-            //GetMessages(chatId).Wait(cancellationToken);
+            else
+            {
+                await GetMessages(chatId);
+            }
+            
         }
         
         
@@ -367,22 +370,6 @@ public class TelegramBot
             Console.WriteLine(update.CallbackQuery.Data);
         }
         
-       
-        //throwChosenTabs(chatId,update);
-
-       
-
-
-        // Печатаем на консоль факт получения сообщения
-        //Console.WriteLine($"Получено сообщение в чате {chatId}: '{messageText}'");
-
-        
-
-        // Отправляем обратно то же сообщение, что и получили
-        // Message sentMessage = await botClient.SendTextMessageAsync(
-        //     chatId: chatId,
-        //     text: "Ты написал:\n" + messageText,
-        //     cancellationToken: cancellationToken);
     }
     
 
@@ -428,7 +415,7 @@ public class TelegramBot
                 {
                     
                     var message = update.Message.Text;
-                    // TODO
+                    
                     if (message == "/start" || message == "Назад" || message == "Круто!!!" || message == "Все понятно!")
                     {
                         var replyKeyboardMarkup = new ReplyKeyboardMarkup(new[]   //возможно,не стоило все так хардкодить..
@@ -505,8 +492,7 @@ public class TelegramBot
                         {
                             new[]
                             {
-                                new KeyboardButton("Аккорды"),
-                                new KeyboardButton("Одиночные звуки")
+                                new KeyboardButton("Аккорды")
                             },
                             new[]
                             {
@@ -519,26 +505,45 @@ public class TelegramBot
                     }
                     else if (message == "Аккорды")
                     {
-                        // TODO запуска другого потока внутри другого
-                        // cts.Cancel();
-                        // CancellationTokenSource token = new CancellationTokenSource();
-                        // await Chords.mainGame(botClient, chatId, token);
+                        rigthAnswer = Chords.randomPath();
+                    }
+                    else if (new[] { "Am", "C", "Dm", "Em", "F", "G" }.Contains(message))
+                    { 
+                        var replyMarkup = new ReplyKeyboardMarkup(new[]
+                        {
+                            new[]
+                            {
+                                new KeyboardButton("Ещё хочу сыграть!"),
+                            },
+                            new[]
+                            {
+                                new KeyboardButton("Назад")
+                            }
+                        });
+                        if (message == rigthAnswer)
+                        {
+                            await botClient.SendTextMessageAsync(
+                                chatId: chatId,
+                                text: "молодец правильно!",replyMarkup: replyMarkup,
+                                cancellationToken: cts.Token);
+                        }
+                        else
+                        {
+
+                            await botClient.SendTextMessageAsync(
+                                chatId: chatId,
+                                text: "NEправильно!",replyMarkup:replyMarkup,
+                                cancellationToken: cts.Token);
+                        }
                         
-
-
                     }
-                    else if (message == "Одиночные звуки")
+                    else if (message == "Ещё хочу сыграть!")
                     {
-                        Message sentMessage = await botClient.SendTextMessageAsync(
-                            chatId: chatId,
-                            text: "Начинаем игру!",
-                            replyMarkup: new ReplyKeyboardRemove(),
-                            cancellationToken: cts.Token);
+                        Chords.changePath();
+                        rigthAnswer = Chords.chord;
+                        await Chords.mainGame(botClient, chatId, cts);
 
                     }
-                    else if (message == "Am" || message == "C" || message == "Dm" || message == "Em" ||
-                             message == "F" || message == "G")
-                    { }
                     else if (message == "Интересные факты")
                     {
                         var replyMarkup = new ReplyKeyboardMarkup(new[]
@@ -608,7 +613,7 @@ public class TelegramBot
                             " любимых групп и скачать себе её на телефон.",cancellationToken: cts.Token);
                         await botClient.SendTextMessageAsync(chatId,
                             "В разделе \"Викторина\" ты сможешь сыграть в игру." +
-                            " Выбрав категорию, тебе надо будет отгадать  парочку(а может и нет) аккордов/нот ",
+                            " Выбрав категорию, тебе надо будет отгадать  парочку(а может и нет) аккордов ",
                             cancellationToken: cts.Token);
                     }
                     else if (message == "Сплин")
