@@ -79,24 +79,11 @@ public class TelegramBot
         {
             return;
         }
-
         
-        
-        
-        // Будем обрабатывать только текстовые сообщения.
-        // При желании можно обрабатывать стикеры, фото, голосовые и т. д.
-        //
-        // Обратите внимание на использованную конструкцию. Она эквивалентна проверке на null, приведённой выше.
-        // Подробнее об этом синтаксисе: https://medium.com/@mattkenefick/snippets-in-c-more-ways-to-check-for-null-4eb735594c09
-        // if (message.Text is not { } messageText )
-        // {
-        //     return;
-        // }
-
         
         // Получаем ID чата, в которое пришло сообщение. Полезно, чтобы отличать пользователей друг от друга.
         long chatId = 0;
-
+        // можно было бы смотреть на изменения и по ним получать айди,а можно и вот так,в тупую))
         if (update.Message != null)
         {
             chatId = update.Message.Chat.Id;
@@ -105,7 +92,7 @@ public class TelegramBot
         {
             chatId = update.CallbackQuery.Message.Chat.Id;
         }
-
+        
 
 
         if (message is not null)
@@ -410,12 +397,10 @@ public class TelegramBot
         
         try
         {
-            var updates = await botClient.GetUpdatesAsync(offset, timeout,allowedUpdates:new [] { UpdateType.Message ,UpdateType.CallbackQuery},cancellationToken:cts.Token);
+            var updates = await botClient.GetUpdatesAsync(offset, timeout,allowedUpdates:new [] { UpdateType.Message },cancellationToken:cts.Token);
                 foreach (var update in updates)
                 {
-                    
                     var message = update.Message.Text;
-                    
                     if (message == "/start" || message == "Назад" || message == "Круто!!!" || message == "Все понятно!")
                     {
                         var replyKeyboardMarkup = new ReplyKeyboardMarkup(new[]   //возможно,не стоило все так хардкодить..
@@ -430,7 +415,7 @@ public class TelegramBot
                             {
                                 new KeyboardButton("Интересные факты"),
                                 new KeyboardButton("Табы"),
-                                new KeyboardButton("лучшая песня"),
+                                new KeyboardButton("Лучшая песня"),
                             }
                            
                         });
@@ -439,10 +424,10 @@ public class TelegramBot
                             replyMarkup: replyKeyboardMarkup,
                             cancellationToken: cts.Token);
                     }
-                    else if (message == "лучшая песня")
+                    else if (message == "Лучшая песня")
                     {
                         var animation = new InputMedia("https://media.tenor.com/CWgfFh7ozHkAAAAM/rick-astly-rick-rolled.gif");
-                        await botClient.SendAnimationAsync(chatId, animation,caption:"были сомнения?",cancellationToken:cts.Token);
+                        await botClient.SendAnimationAsync(chatId, animation,cancellationToken:cts.Token);
                         
                         
                     }
@@ -458,24 +443,18 @@ public class TelegramBot
                         });
                         await botClient.SendTextMessageAsync(chatId, "Приветствую! Я рад, что ты обратился ко мне." +
                                                                      " Я могу предложить тебе рассказать кучу интересных фактов о гитаре и группах," +
-                                                                     " а также предложить готовые табулатуры и устроить викторину для проверки твоего музыкального слуха!",
+                                                                     " предложить готовые табулатуры,устроить викторину для проверки твоего музыкального слуха и многое другое!",
                             replyMarkup: replyMarkup,
                             cancellationToken: cts.Token);
                     }
                     else if (message == "Полезные материалы")
                     {
-                        // TODO
                         var replyMarkup = new ReplyKeyboardMarkup(new[]
                         {
                             new[]
                             {
-                                new KeyboardButton("ютуб-видео"),
-                                new KeyboardButton("картинки аккордов")
-                            },
-                            new[]
-                            {
-                                new KeyboardButton("Разные строи"),
-                                new KeyboardButton("звучание аккордов")
+                                new KeyboardButton("акустика"),
+                                new KeyboardButton("электро"),
                             },
                             new[]
                             {
@@ -484,6 +463,16 @@ public class TelegramBot
                         });
                         await botClient.SendTextMessageAsync(chatId, "Чем могу помочь?",
                             replyMarkup: replyMarkup,
+                            cancellationToken: cts.Token);
+                    }
+                    else if (message == "акустика")
+                    {
+                        await botClient.SendTextMessageAsync(chatId, "https://www.youtube.com/playlist?list=PLoeFMc4Ws4n6D8Mq-RB6VY2HH6dwETH4k",
+                            cancellationToken: cts.Token);
+                    }
+                    else if (message == "электро")
+                    {
+                        await botClient.SendTextMessageAsync(chatId, "https://www.youtube.com/playlist?list=PLoeFMc4Ws4n4yrH14-6FQ0V4PDynNpVXz",
                             cancellationToken: cts.Token);
                     }
                     else if (message == "Викторина")
@@ -610,10 +599,14 @@ public class TelegramBot
                             " гитары.",cancellationToken: cts.Token);
                         await botClient.SendTextMessageAsync(chatId,
                             "В разделе \"Табы\" ты сможешь выбрать табулатуры из моих" +
-                            " любимых групп и скачать себе её на телефон.",cancellationToken: cts.Token);
+                            " любимых групп и скачать себе их на телефон.",cancellationToken: cts.Token);
                         await botClient.SendTextMessageAsync(chatId,
                             "В разделе \"Викторина\" ты сможешь сыграть в игру." +
                             " Выбрав категорию, тебе надо будет отгадать  парочку(а может и нет) аккордов ",
+                            cancellationToken: cts.Token);
+                        await botClient.SendTextMessageAsync(chatId,
+                            "В разделе \"Полезные материалы\" ты можешь получить доступ к плейлисту ютуба с разбором моих любимых песен." +
+                            " Выбрав тип гитары, ты можешь выбрать определенный плейлист",
                             cancellationToken: cts.Token);
                     }
                     else if (message == "Сплин")
