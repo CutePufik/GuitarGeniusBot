@@ -642,7 +642,7 @@ public class TelegramBot
 
                         Message sentMessage = await botClient.SendTextMessageAsync(
                             chatId: chatId,
-                            text: "A message with an inline keyboard markup",
+                            text: "Божественная группа!!!",
                             replyMarkup: inlineKeyboard,
                             cancellationToken: cts.Token
                         );
@@ -669,7 +669,7 @@ public class TelegramBot
 
                         Message sentMessage = await botClient.SendTextMessageAsync(
                             chatId: chatId,
-                            text: "A message with an inline keyboard markup",
+                            text: "Нервы,крайне советую!",
                             replyMarkup: inlineKeyboard,
                             cancellationToken: cts.Token
                         );
